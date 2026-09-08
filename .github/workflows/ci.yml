@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -72,3 +76,65 @@ jobs:
 
       - name: Build Windows executable
         run: pyinstaller main.spec
+
+      - name: Upload Windows executable
+        id: artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-build
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Comment build on PR
+        if: >
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v9
+        env:
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+        with:
+          script: |
+            const marker = '<!-- pyinstaller-windows-build -->';
+
+            const body = `${marker}
+            ## Windows CI Build
+
+            ✅ PyInstaller 빌드가 성공했습니다.
+
+            **[Windows 실행 파일 다운로드](${process.env.ARTIFACT_URL})**
+
+            - Commit: \`${context.sha.substring(0, 7)}\`
+            - Python: \`3.12\`
+            - Runner: \`windows-latest\`
+            - Artifact 보관 기간: 7일
+            `;
+
+            const { data: comments } =
+              await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+
+            const existing = comments.find(
+              comment =>
+                comment.user.type === 'Bot' &&
+                comment.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
