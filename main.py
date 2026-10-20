@@ -23,6 +23,14 @@ def main(page:ft.Page):
                 page.views.append(view.home_view(page))
                 page.views.append(view.keyboard_view(page))
 
+            case "/mouse":
+                page.views.append(view.home_view(page))
+                page.views.append(view.mouse_view(page))
+
+            case "/settings":
+                page.views.append(view.home_view(page))
+                page.views.append(view.settings_view(page))
+
         page.update()
 
     # 뒤로가기
