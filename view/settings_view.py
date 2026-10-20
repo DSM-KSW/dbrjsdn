@@ -1,17 +1,13 @@
 import flet as ft
 import components
 
-# 디자인 확정 전 자리만 잡아둔 화면 (뒤로가기 버튼만 있음)
+# 디자인 확정 전 자리만 잡아둔 화면 (상단 메뉴만 있음)
 def settings_view(page:ft.Page):
     return ft.View(
         route="/settings",
+        bgcolor="#595959",
+        padding=ft.Padding.all(20),
         controls=[
-            ft.Container(
-                content=components.make_back_button({
-                    "push_route": page.push_route,
-                    "href": "/"
-                }),
-                padding=ft.Padding.symmetric(vertical=30, horizontal=40)
-            )
+            components.make_nav_bar({"push_route": page.push_route})
         ]
     )

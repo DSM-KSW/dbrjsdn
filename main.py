@@ -1,5 +1,8 @@
+import os
 import flet as ft
 import view
+
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 def main(page:ft.Page):
     page.title = "dsm ksw project"
@@ -47,4 +50,4 @@ def main(page:ft.Page):
     route_change()
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, assets_dir=ASSETS_DIR)
