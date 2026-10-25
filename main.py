@@ -1,5 +1,8 @@
+import os
 import flet as ft
 import view
+
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 def main(page:ft.Page):
     page.title = "dsm ksw project"
@@ -23,6 +26,14 @@ def main(page:ft.Page):
                 page.views.append(view.home_view(page))
                 page.views.append(view.keyboard_view(page))
 
+            case "/mouse":
+                page.views.append(view.home_view(page))
+                page.views.append(view.mouse_view(page))
+
+            case "/settings":
+                page.views.append(view.home_view(page))
+                page.views.append(view.settings_view(page))
+
         page.update()
 
     # 뒤로가기
@@ -39,4 +50,4 @@ def main(page:ft.Page):
     route_change()
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, assets_dir=ASSETS_DIR)

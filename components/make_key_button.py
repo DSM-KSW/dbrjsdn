@@ -1,42 +1,46 @@
 
 import flet as ft
-from typing import TypedDict, NotRequired
+from typing import TypedDict
+from components.make_hover_icon import is_hover_enter
+
+KEY_COLOR = "#D3D3D3"
+KEY_HIGHLIGHT_COLOR = "#00C3D0"
 
 class KeyButtonParameters(TypedDict):
     id:str
     name:str
-    width:NotRequired[int]
-    height:NotRequired[int]
-    on_hover:ft.ControlEventHandler[ft.Button]
-    on_out:ft.ControlEventHandler[ft.Button]
+    width:float
+    height:float
+    on_hover:ft.ControlEventHandler[ft.Container]
+    on_out:ft.ControlEventHandler[ft.Container]
 
 def make_key_button(param:KeyButtonParameters):
-    width = param.get("width", 100)
-    height = param.get("height", 100)
+    def on_hover(e:ft.Event[ft.Container]):
+        if is_hover_enter(e):
+            param["on_hover"](e)
+        else:
+            param["on_out"](e)
 
-    def on_hover(e:ft.Event[ft.Button]):
-        match e.data:
-            case "true":
-                param["on_hover"](e)
-            case "false":
-                param["on_out"](e)
-
-    return ft.Button(
+    return ft.Container(
         content=ft.Text(
             param["name"],
             size=12,
-            color="0x000000"
+            color="#000000"
+        ),
+        alignment=ft.Alignment.CENTER,
+
+        width=param["width"],
+        height=param["height"],
+
+        bgcolor=KEY_COLOR,
+        border_radius=ft.BorderRadius.all(6),
+        shadow=ft.BoxShadow(
+            blur_radius=4,
+            color=ft.Colors.with_opacity(0.25, "#000000"),
+            offset=ft.Offset(1, 2)
         ),
 
-        width=width,
-        height=height,
-
-        bgcolor=ft.Colors.GREY_300,
-
-        style=ft.ButtonStyle(
-            shape=ft.RoundedRectangleBorder(radius=ft.BorderRadius.all(4)),
-            padding=ft.Padding.all(8)
-        ),
+        data=param["id"],
 
         on_hover=on_hover
     )
