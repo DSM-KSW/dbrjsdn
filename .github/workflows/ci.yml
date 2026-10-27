@@ -51,7 +51,8 @@ jobs:
       - name: Test
         run: |
           pytest \
-            --cov=src \
+            --cov=components \
+            --cov=view \
             --cov-report=term-missing
 
   build-windows:
