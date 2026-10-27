@@ -1,5 +1,6 @@
 """Start the persistent Windows remapper and send it JSON calls."""
 
+import os
 import subprocess
 import sys
 import threading
@@ -34,8 +35,11 @@ def ensure_background(timeout=5.0):
         if getattr(sys, "frozen", False):
             command = [sys.executable, "--background"]
         else:
+            windowless_python = Path(sys.executable).with_name("pythonw.exe")
             command = [
-                sys.executable,
+                str(
+                    windowless_python if windowless_python.exists() else sys.executable
+                ),
                 "-B",
                 str(Path(__file__).resolve().parent / "main.py"),
                 "--background",
@@ -43,6 +47,9 @@ def ensure_background(timeout=5.0):
         process = subprocess.Popen(
             command,
             cwd=str(Path(__file__).resolve().parent),
+            env={**os.environ, "PYINSTALLER_RESET_ENVIRONMENT": "1"}
+            if getattr(sys, "frozen", False)
+            else os.environ.copy(),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

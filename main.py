@@ -5,7 +5,7 @@ import sys
 
 import backend_client
 
-if "--background" not in sys.argv:
+if "--background" not in sys.argv and "--background-probe" not in sys.argv:
     import flet as ft
 
     import view
@@ -69,5 +69,7 @@ if __name__ == "__main__":
         from backend.app import run_background
 
         run_background()
+    elif "--background-probe" in sys.argv:
+        backend_client.ensure_background()
     else:
         ft.run(main, assets_dir=ASSETS_DIR)

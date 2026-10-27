@@ -79,6 +79,12 @@ jobs:
       - name: Build Windows executable
         run: pyinstaller main.spec
 
+      - name: Test packaged background after front exits
+        shell: pwsh
+        run: |
+          $env:KSW_PACKAGED_EXE = (Resolve-Path dist/dsm-ksw-project.exe).Path
+          python -m unittest discover -s tests -p test_packaged_worker.py -v
+
       - name: Upload Windows executable
         id: artifact
         uses: actions/upload-artifact@v7
