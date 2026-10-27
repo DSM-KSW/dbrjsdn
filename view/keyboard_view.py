@@ -17,8 +17,7 @@ KEY_UNIT_X = 50  # 키 1칸의 가로 간격(px)
 KEY_UNIT_Y = 55  # 키 1줄의 세로 간격(px)
 KEY_GAP = 6  # 키 사이 여백(px)
 
-TOOLTIP_GAP = 8  # 키와 툴팁 사이 여백(px)
-TOOLTIP_HIDE_DELAY = 0.2  # 키에서 툴팁으로 마우스를 옮길 시간(초)
+TOOLTIP_HIDE_DELAY = 0.2  # 툴팁에서 마우스가 벗어난 뒤 숨길 때까지 기다리는 시간(초)
 
 # 키 id -> 리매핑 목록 (각 리매핑은 키 id 조합)
 # TODO: 실제 리매핑 저장/적용 기능이 생기면 그쪽 데이터로 교체
@@ -191,6 +190,8 @@ def keyboard_view(page:ft.Page):
         def on_delete(index:int):
             remappings.pop(index)
             refresh_tooltip()
+            # 줄이 줄어들면 툴팁 높이가 바뀌므로 자리도 다시 잡는다
+            place_tooltip(key_buttons[key_id])
             set_highlight({key_id})
             keyboard_stack.update()
 
@@ -212,15 +213,32 @@ def keyboard_view(page:ft.Page):
             "on_row_out": on_row_out
         })
 
+    # 툴팁은 Stack 안에 완전히 들어가 있어야 한다.
+    # Stack 밖으로 나간 자식은 보이기만 하고 마우스 이벤트를 받지 못해서,
+    # 그 상태로는 툴팁 위로 마우스를 옮길 수 없고 그대로 숨겨진다.
+    def place_tooltip(key_button:ft.Container):
+        height = components.tooltip_height(len(REMAPPINGS.get(key_button.data, [])))
+
+        # 가로: 키 가운데 정렬, 키보드 영역을 벗어나면 안쪽으로 당긴다
+        left = key_button.left + (key_button.width - components.TOOLTIP_WIDTH) / 2
+        tooltip_thing.left = min(max(left, 0), keyboard_width - components.TOOLTIP_WIDTH)
+
+        # 세로: 키 위에 자리가 있으면 위, 없으면(맨 윗줄 등) 아래에 붙인다.
+        # 툴팁의 투명 여백이 키와 맞닿으므로 마우스가 빈 곳을 지나지 않는다.
+        if key_button.top >= height:
+            tooltip_thing.top = None
+            tooltip_thing.bottom = keyboard_height - key_button.top
+        else:
+            tooltip_thing.bottom = None
+            tooltip_thing.top = key_button.top + key_button.height
+
     def show_tooltip(key_button:ft.Container):
         cancel_hide()
 
         state["key_id"] = key_button.data
         refresh_tooltip()
+        place_tooltip(key_button)
 
-        # 키 바로 위, 가운데 정렬
-        tooltip_thing.left = key_button.left + (key_button.width - components.TOOLTIP_WIDTH) / 2
-        tooltip_thing.bottom = keyboard_height - key_button.top + TOOLTIP_GAP
         tooltip_thing.visible = True
 
         set_highlight({key_button.data})
@@ -272,7 +290,7 @@ def keyboard_view(page:ft.Page):
         controls=[*key_buttons.values(), tooltip_thing],
         width=keyboard_width,
         height=keyboard_height,
-        # 맨 윗줄 키의 툴팁이 키보드 밖으로 나가도 잘리지 않게
+        # 키와 툴팁 그림자가 잘리지 않게
         clip_behavior=ft.ClipBehavior.NONE
     )
 

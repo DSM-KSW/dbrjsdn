@@ -3,6 +3,13 @@ from typing import TypedDict, Callable
 from components.make_hover_icon import make_hover_icon, is_hover_enter
 
 TOOLTIP_WIDTH = 216
+TOOLTIP_GAP = 8  # 키와 툴팁 사이 여백(px)
+
+# 툴팁 높이를 미리 계산하기 위한 값들 (set_tooltip_remappings가 만드는 구조와 맞춰야 한다)
+_PADDING_Y = 8  # 흰 박스 위/아래 안쪽 여백
+_SPACING = 12  # 줄 사이 간격
+_ROW_HEIGHT = 24  # 리매핑 한 줄 높이 (삭제 아이콘 높이)
+_ADD_HEIGHT = 24  # 추가 버튼 높이
 
 class TooltipParameters(TypedDict):
     on_hover:Callable[[], None]
@@ -16,6 +23,18 @@ class RemappingListParameters(TypedDict):
     on_row_hover:Callable[[int], None]
     on_row_out:Callable[[int], None]
 
+# 투명 여백까지 포함한 툴팁 전체 높이 (툴팁을 띄울 자리를 고를 때 쓴다)
+def tooltip_height(remapping_count:int):
+    row_count = remapping_count + 1  # 리매핑 목록 + 추가 버튼
+
+    return (
+        _PADDING_Y * 2
+        + _ROW_HEIGHT * remapping_count
+        + _ADD_HEIGHT
+        + _SPACING * (row_count - 1)
+        + TOOLTIP_GAP * 2
+    )
+
 # 키 위에 뜨는 리매핑 목록 (내용은 set_tooltip_remappings로 채움)
 def make_tooltip(param:TooltipParameters):
     def on_hover(e:ft.Event[ft.Container]):
@@ -24,10 +43,10 @@ def make_tooltip(param:TooltipParameters):
         else:
             param["on_out"]()
 
-    return ft.Container(
+    box = ft.Container(
         content=ft.Column(
             controls=[],
-            spacing=12,
+            spacing=_SPACING,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         ),
 
@@ -35,16 +54,28 @@ def make_tooltip(param:TooltipParameters):
 
         bgcolor="#FFFFFF",
         border_radius=ft.BorderRadius.all(10),
-        padding=ft.Padding.symmetric(horizontal=10, vertical=8),
+        padding=ft.Padding.symmetric(horizontal=10, vertical=_PADDING_Y),
         shadow=ft.BoxShadow(
             blur_radius=10,
             spread_radius=6,
             color=ft.Colors.with_opacity(0.25, "#000000"),
             offset=ft.Offset(0, 4)
-        ),
+        )
+    )
 
+    # 키에서 툴팁으로 마우스를 옮기는 중에 호버가 끊기지 않게,
+    # 위아래로 TOOLTIP_GAP만큼 투명한 여백을 두고 그 영역까지 호버 판정에 넣는다.
+    # (키와 맞닿는 쪽이 이 여백이라 마우스가 빈 곳을 지나지 않는다)
+    return ft.Container(
+        content=box,
+        width=TOOLTIP_WIDTH,
+        padding=ft.Padding.symmetric(vertical=TOOLTIP_GAP),
         on_hover=on_hover
     )
+
+def _list_column(tooltip:ft.Container) -> ft.Column:
+    # make_tooltip이 만든 구조: 투명 여백 Container > 흰 박스 Container > Column
+    return tooltip.content.content
 
 def _make_remapping_row(index:int, label:str, param:RemappingListParameters):
     def on_hover(e:ft.Event[ft.Container]):
@@ -102,4 +133,4 @@ def set_tooltip_remappings(tooltip:ft.Container, param:RemappingListParameters):
         "on_click": param["on_add"]
     }))
 
-    tooltip.content.controls = rows
+    _list_column(tooltip).controls = rows
