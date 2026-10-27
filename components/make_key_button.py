@@ -1,6 +1,8 @@
 
-import flet as ft
 from typing import TypedDict
+
+import flet as ft
+
 from components.make_hover_icon import is_hover_enter
 
 KEY_COLOR = "#D3D3D3"

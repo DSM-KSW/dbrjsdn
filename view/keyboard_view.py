@@ -1,7 +1,10 @@
 import asyncio
+from typing import NotRequired, TypedDict
+
 import flet as ft
+
 import components
-from typing import TypedDict, NotRequired
+
 
 class KeyButtonData(TypedDict):
     id:str

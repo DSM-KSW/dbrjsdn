@@ -1,5 +1,8 @@
+from collections.abc import Awaitable, Callable
+from typing import NotRequired, TypedDict
+
 import flet as ft
-from typing import TypedDict, Callable, Awaitable, NotRequired
+
 
 class HoverIconParameters(TypedDict):
     src:str  # 평소 아이콘 (assets 기준 경로)

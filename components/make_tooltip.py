@@ -1,6 +1,9 @@
+from collections.abc import Callable
+from typing import TypedDict
+
 import flet as ft
-from typing import TypedDict, Callable
-from components.make_hover_icon import make_hover_icon, is_hover_enter
+
+from components.make_hover_icon import is_hover_enter, make_hover_icon
 
 TOOLTIP_WIDTH = 216
 TOOLTIP_GAP = 8  # 키와 툴팁 사이 여백(px)

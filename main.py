@@ -1,5 +1,7 @@
 import os
+
 import flet as ft
+
 import view
 
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")

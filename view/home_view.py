@@ -1,5 +1,6 @@
 import flet as ft
 
+
 # 임시 테스트용 화면: 각 화면으로 이동하는 버튼만 둔다
 def home_view(page:ft.Page):
     def make_route_button(route:str):

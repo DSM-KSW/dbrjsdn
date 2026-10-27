@@ -1,5 +1,7 @@
+from collections.abc import Awaitable, Callable
+from typing import TypedDict
+
 import flet as ft
-from typing import TypedDict, Callable, Awaitable
 
 NAV_COLOR = "#2F2F2F"
 
