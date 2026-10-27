@@ -6,7 +6,8 @@ import view
 
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
-def main(page:ft.Page):
+
+def main(page: ft.Page):
     page.title = "dsm ksw project"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.theme_mode = ft.ThemeMode.LIGHT
@@ -16,7 +17,7 @@ def main(page:ft.Page):
     page.window.width = 1280
     page.window.height = 720
 
-    def route_change(e:ft.RouteChangeEvent | None = None):
+    def route_change(e: ft.RouteChangeEvent | None = None):
         page.views.clear()
 
         # stack
@@ -39,7 +40,7 @@ def main(page:ft.Page):
         page.update()
 
     # 뒤로가기
-    async def view_pop(e:ft.ViewPopEvent):
+    async def view_pop(e: ft.ViewPopEvent):
         page.views.pop()
         top_view = page.views[-1]
         await page.push_route(top_view.route)
@@ -50,6 +51,7 @@ def main(page:ft.Page):
     # 맨 처음 이동할 때는 await page.push_route("/")가 안 되더라구요.
     # / -> /라서 변경 없음으로 처리한다나 뭐라나.
     route_change()
+
 
 if __name__ == "__main__":
     ft.run(main, assets_dir=ASSETS_DIR)
